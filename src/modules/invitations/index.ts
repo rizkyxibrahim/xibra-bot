@@ -86,11 +86,9 @@ async function showList(
 
   const keyboard = new InlineKeyboard();
 
-  for (const item of items) {
-    keyboard.text(`🔍 Detail #${item.id}`, `inv:show:${item.id}`);
-
-    if (item.status === "pending") {
-      keyboard.text(`🗑 Cabut #${item.id}`, `inv:revoke:${item.id}`);
+  for (let start = 0; start < items.length; start += 4) {
+    for (const item of items.slice(start, start + 4)) {
+      keyboard.text(`🔍 #${item.id}`, `inv:show:${item.id}`);
     }
 
     keyboard.row();
