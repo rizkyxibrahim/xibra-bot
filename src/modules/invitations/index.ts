@@ -1,6 +1,12 @@
 import { InlineKeyboard, type Context } from "grammy";
 import { ApiError, ApiUnavailableError } from "../../api/errors.js";
-import { escapeHtml, formatInvitation } from "../../bot/format.js";
+import {
+  STATUS_LABELS,
+  escapeHtml,
+  formatInvitation,
+  formatInvitationDetail,
+  formatWib,
+} from "../../bot/format.js";
 import {
   isOwner,
   loadLinkedAccount,
@@ -11,13 +17,6 @@ import { ICON, ack, homeOnly, show } from "../../core/ui.js";
 import type { BotModule, ModuleDeps } from "../types.js";
 
 const HOURS = ["1", "24", "72"];
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: "menunggu",
-  redeemed: "sudah dipakai",
-  expired: "kedaluwarsa",
-  revoked: "dicabut",
-};
 
 /** Owner-only actions. Members get a short refusal, never the data. */
 async function ownerGate(ctx: Context, deps: ModuleDeps): Promise<boolean> {
@@ -82,15 +81,19 @@ async function showList(
   const lines = items.map((item) => {
     const note = item.note ? ` · ${escapeHtml(item.note)}` : "";
     const status = STATUS_LABELS[item.status] ?? item.status;
-    return `#${item.id} · ${status} · sampai ${escapeHtml(item.expires_at ?? "-")}${note}`;
+    return `#${item.id} · ${status} · sampai ${formatWib(item.expires_at)}${note}`;
   });
 
   const keyboard = new InlineKeyboard();
 
   for (const item of items) {
+    keyboard.text(`🔍 Detail #${item.id}`, `inv:show:${item.id}`);
+
     if (item.status === "pending") {
-      keyboard.text(`🗑 Cabut #${item.id}`, `inv:revoke:${item.id}`).row();
+      keyboard.text(`🗑 Cabut #${item.id}`, `inv:revoke:${item.id}`);
     }
+
+    keyboard.row();
   }
 
   keyboard
@@ -183,6 +186,59 @@ export const invitations: BotModule = {
       await ack(ctx);
       if (!(await ownerGate(ctx, deps))) return;
       await showList(ctx, deps, true);
+    });
+
+    bot.callbackQuery(/^inv:show:\d+$/, async (ctx) => {
+      await ack(ctx);
+      if (!(await ownerGate(ctx, deps))) return;
+
+      const id = Number(ctx.callbackQuery.data.split(":")[2]);
+
+      const listOnly = new InlineKeyboard()
+        .text("📋 Daftar undangan", "inv:list")
+        .text(`${ICON.home} Home`, "nav:home");
+
+      try {
+        const { data } = await deps.api.showInvitation({
+          telegramUserId: ctx.from.id,
+          invitationId: id,
+        });
+
+        const keyboard = new InlineKeyboard();
+
+        if (data.status === "pending") {
+          keyboard.text(`🗑 Cabut #${id}`, `inv:revoke:${id}`).row();
+        }
+
+        keyboard
+          .text("📋 Daftar undangan", "inv:list")
+          .text(`${ICON.home} Home`, "nav:home");
+
+        await show(ctx, formatInvitationDetail(data), keyboard, {
+          edit: true,
+          html: true,
+        });
+      } catch (error) {
+        if (error instanceof ApiUnavailableError) {
+          await show(
+            ctx,
+            "Xibra sedang tidak bisa dihubungi. Coba lagi sebentar lagi.",
+            listOnly,
+            { edit: true },
+          );
+          return;
+        }
+
+        if (error instanceof ApiError && error.status === 404) {
+          await show(ctx, `Undangan #${id} tidak ditemukan.`, listOnly, {
+            edit: true,
+          });
+          return;
+        }
+
+        // Anything else is unexpected: let the global handler log it.
+        throw error;
+      }
     });
 
     bot.callbackQuery(/^inv:revoke:\d+$/, async (ctx) => {

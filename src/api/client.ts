@@ -15,6 +15,21 @@ export interface InvitationSummary {
   created_by: { id: number; name: string; username: string } | null;
 }
 
+export interface PersonRef {
+  id: number;
+  name: string;
+  username: string;
+}
+
+export interface InvitationDetail extends InvitationSummary {
+  role?: { name: string; label: string } | null;
+  redeemed_by?: PersonRef | null;
+  revoked_by?: PersonRef | null;
+  redeemed_at?: string | null;
+  revoked_at?: string | null;
+  created_at?: string | null;
+}
+
 export interface ApiClientOptions {
   baseUrl: string;
   keyId: string;
@@ -94,6 +109,16 @@ export class XibraApiClient {
   }): Promise<ApiEnvelope<InvitationSummary>> {
     return this.post<InvitationSummary>(
       `/api/v1/bot/invitations/${input.invitationId}/revoke`,
+      { telegram_user_id: input.telegramUserId },
+    );
+  }
+
+  showInvitation(input: {
+    telegramUserId: number;
+    invitationId: number;
+  }): Promise<ApiEnvelope<InvitationDetail>> {
+    return this.post<InvitationDetail>(
+      `/api/v1/bot/invitations/${input.invitationId}`,
       { telegram_user_id: input.telegramUserId },
     );
   }
