@@ -7,6 +7,14 @@ import type {
   LinkData,
 } from "./types.js";
 
+export interface InvitationSummary {
+  id: number;
+  status: "pending" | "redeemed" | "expired" | "revoked";
+  note: string | null;
+  expires_at: string | null;
+  created_by: { id: number; name: string; username: string } | null;
+}
+
 export interface ApiClientOptions {
   baseUrl: string;
   keyId: string;
@@ -66,6 +74,28 @@ export class XibraApiClient {
         : {}),
       ...(input.note !== undefined ? { note: input.note } : {}),
     });
+  }
+
+  listInvitations(input: {
+    telegramUserId: number;
+    page?: number;
+    perPage?: number;
+  }): Promise<ApiEnvelope<InvitationSummary[]>> {
+    return this.post<InvitationSummary[]>("/api/v1/bot/invitations/list", {
+      telegram_user_id: input.telegramUserId,
+      ...(input.page !== undefined ? { page: input.page } : {}),
+      ...(input.perPage !== undefined ? { per_page: input.perPage } : {}),
+    });
+  }
+
+  revokeInvitation(input: {
+    telegramUserId: number;
+    invitationId: number;
+  }): Promise<ApiEnvelope<InvitationSummary>> {
+    return this.post<InvitationSummary>(
+      `/api/v1/bot/invitations/${input.invitationId}/revoke`,
+      { telegram_user_id: input.telegramUserId },
+    );
   }
 
   async post<T>(

@@ -2,6 +2,7 @@ import { XibraApiClient } from "./api/client.js";
 import { createBot } from "./bot/create-bot.js";
 import { ConfigError, loadConfig, loadEnvFileIfPresent } from "./config.js";
 import { createLogger } from "./logger.js";
+import { commandMenu } from "./modules/index.js";
 
 loadEnvFileIfPresent();
 
@@ -37,13 +38,7 @@ const shutdown = (signal: string): void => {
 process.once("SIGINT", () => shutdown("SIGINT"));
 process.once("SIGTERM", () => shutdown("SIGTERM"));
 
-await bot.api.setMyCommands([
-  { command: "start", description: "Start the bot" },
-  { command: "help", description: "Show available commands" },
-  { command: "link", description: "Link your Xibra account" },
-  { command: "me", description: "Show your linked account" },
-  { command: "invite", description: "Create an invitation (Owner only)" },
-]);
+await bot.api.setMyCommands(commandMenu());
 
 // Pending updates are dropped so stale commands never run after a restart.
 await bot.start({
