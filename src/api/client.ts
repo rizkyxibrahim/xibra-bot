@@ -5,8 +5,11 @@ import type {
   ApiEnvelope,
   InvitationData,
   LinkData,
+  NewsCategory,
+  NewsHeadline,
+  SavedLocation,
+  WeatherForecast,
 } from "./types.js";
-
 export interface InvitationSummary {
   id: number;
   status: "pending" | "redeemed" | "expired" | "revoked";
@@ -187,6 +190,58 @@ export class XibraApiClient {
     }
 
     return envelope as ApiEnvelope<T>;
+  }
+
+  showLocation(
+    telegramUserId: number,
+  ): Promise<ApiEnvelope<SavedLocation | null>> {
+    return this.post("/api/v1/bot/weather/location/show", {
+      telegram_user_id: telegramUserId,
+    });
+  }
+
+  saveLocation(input: {
+    telegramUserId: number;
+    latitude: number;
+    longitude: number;
+  }): Promise<ApiEnvelope<SavedLocation>> {
+    return this.post("/api/v1/bot/weather/location", {
+      telegram_user_id: input.telegramUserId,
+      latitude: input.latitude,
+      longitude: input.longitude,
+    });
+  }
+
+  deleteLocation(
+    telegramUserId: number,
+  ): Promise<ApiEnvelope<{ deleted: boolean }>> {
+    return this.post("/api/v1/bot/weather/location/delete", {
+      telegram_user_id: telegramUserId,
+    });
+  }
+
+  getWeather(telegramUserId: number): Promise<ApiEnvelope<WeatherForecast>> {
+    return this.post("/api/v1/bot/weather/forecast", {
+      telegram_user_id: telegramUserId,
+    });
+  }
+
+  getNewsCategories(
+    telegramUserId: number,
+  ): Promise<ApiEnvelope<NewsCategory[]>> {
+    return this.post("/api/v1/bot/news/categories", {
+      telegram_user_id: telegramUserId,
+    });
+  }
+
+  getNewsHeadlines(input: {
+    telegramUserId: number;
+    category: string;
+  }): Promise<ApiEnvelope<NewsHeadline[]>> {
+    return this.post("/api/v1/bot/news/headlines", {
+      telegram_user_id: input.telegramUserId,
+      category: input.category,
+    });
   }
 }
 

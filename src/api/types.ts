@@ -34,3 +34,42 @@ export interface InvitationData {
     link: string | null;
   };
 }
+
+export interface SavedLocation {
+  latitude: number;
+  longitude: number;
+  label: string | null;
+}
+
+export interface WeatherForecast {
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  current: {
+    time: string;
+    temperature: number | null;
+    apparent_temperature: number | null;
+    humidity: number | null;
+    precipitation: number | null;
+    weather_code: number;
+    wind_speed: number | null;
+  };
+  today: {
+    date: string | null;
+    weather_code: number | null;
+    temperature_max: number | null;
+    temperature_min: number | null;
+    precipitation_probability_max: number | null;
+  };
+}
+
+export interface NewsCategory {
+  key: string;
+  label: string;
+}
+
+export interface NewsHeadline {
+  title: string;
+  link: string;
+  published_at: string | null;
+}
