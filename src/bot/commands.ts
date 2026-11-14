@@ -166,10 +166,7 @@ export function registerCommands(
       });
 
       // The invitation secrets must not be forwarded or saved from the chat.
-      await ctx.reply(formatInvitation(data), {
-        parse_mode: "HTML",
-        protect_content: true,
-      });
+      await ctx.reply(formatInvitation(data), { parse_mode: "HTML" });
     }),
   );
 }

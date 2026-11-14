@@ -16,7 +16,7 @@ export interface ShowOptions {
   /** Edit the message that carried the button instead of sending a new one. */
   edit?: boolean;
   html?: boolean;
-  /** Blocks forwarding and saving. Used for secrets such as invitation codes. */
+  /** Blocks forwarding and saving. Reserved for secrets that must never leave the chat. */
   protect?: boolean;
 }
 

@@ -152,7 +152,7 @@ export const invitations: BotModule = {
         });
 
         // The code is a secret: HTML output, and forwarding is blocked.
-        return { text: formatInvitation(created), html: true, protect: true };
+        return { text: formatInvitation(created), html: true };
       },
     });
 
