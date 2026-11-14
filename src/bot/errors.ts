@@ -24,6 +24,11 @@ const MESSAGES: Readonly<Record<string, string>> = {
     "That input is not valid. Use /help to see the expected format.",
   INVITATION_EXPIRATION_INVALID:
     "The expiration must be between 1 and 72 hours.",
+
+  EXTERNAL_SERVICE_UNAVAILABLE:
+    "The weather or news service is temporarily unavailable. Please try again shortly.",
+  BOT_LOCATION_REQUIRED: "Share your location first, then try again.",
+  BOT_NEWS_CATEGORY_INVALID: "That news category is not available.",
 };
 
 /**
