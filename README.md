@@ -13,7 +13,7 @@ Features are grouped into modules under `src/modules/`. Each module registers it
 | `/link <code>` | Link this Telegram account to a Xibra account |
 | `/me` | Show the linked account |
 | `/invite` | Create an invitation (Owner only) |
-| `/invites` | List the latest invitations and revoke pending ones (Owner only) |
+| - `/invites` lists the latest invitations. Each one has a detail screen (status, role, creator, and Asia/Jakarta times) and a revoke button while it is pending. |
 | `/batal`, `/cancel` | Stop the current step-by-step flow |
 
 Most actions are also available as buttons from the home menu.
