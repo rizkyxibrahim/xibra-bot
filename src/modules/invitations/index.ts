@@ -1,4 +1,5 @@
 import { InlineKeyboard, type Context } from "grammy";
+import { ApiError, ApiUnavailableError } from "../../api/errors.js";
 import { escapeHtml, formatInvitation } from "../../bot/format.js";
 import {
   isOwner,
@@ -189,14 +190,43 @@ export const invitations: BotModule = {
       if (!(await ownerGate(ctx, deps))) return;
 
       const id = Number(ctx.callbackQuery.data.split(":")[2]);
-      await deps.api.revokeInvitation({
-        telegramUserId: ctx.from.id,
-        invitationId: id,
-      });
 
       const back = new InlineKeyboard()
         .text(`${ICON.invite} Menu undangan`, "open:invitations")
         .text(`${ICON.home} Home`, "nav:home");
+
+      try {
+        await deps.api.revokeInvitation({
+          telegramUserId: ctx.from.id,
+          invitationId: id,
+        });
+      } catch (error) {
+        if (error instanceof ApiUnavailableError) {
+          await show(
+            ctx,
+            "Xibra sedang tidak bisa dihubungi. Coba lagi sebentar lagi.",
+            back,
+            { edit: true },
+          );
+          return;
+        }
+
+        if (
+          error instanceof ApiError &&
+          (error.status === 404 || error.status === 409)
+        ) {
+          await show(
+            ctx,
+            `Undangan #${id} tidak bisa dicabut. Mungkin sudah dipakai, kedaluwarsa, atau sudah dicabut.`,
+            back,
+            { edit: true },
+          );
+          return;
+        }
+
+        // Anything else is unexpected: let the global handler log it.
+        throw error;
+      }
 
       await show(ctx, `Undangan #${id} sudah dicabut.`, back, { edit: true });
     });
