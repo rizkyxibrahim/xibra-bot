@@ -84,6 +84,7 @@ scripts/            smoke test and signature helper
 ## Security notes
 
 - Requests to the API are HMAC-signed (see `src/api/signature.ts`). The API rejects unsigned, stale, and replayed requests.
+- The bot only answers in private chats, so codes and invitations never appear in a group.
 - The acting user is resolved by the API from the verified Telegram user ID, never from a username.
 - Owner-only actions are checked by the API. The bot hides them from members as a convenience, not as a security boundary.
 - Passwords are never requested or handled in Telegram.
