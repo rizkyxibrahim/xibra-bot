@@ -2,7 +2,9 @@
 
 Telegram interface for Xibra Platform. It talks to `xibra-api` only and never touches the database.
 
-Features are grouped into modules under `src/modules/`. Each module registers its own commands and buttons. Only the Home and Invitations modules are implemented; the other menu entries are placeholders.
+Features are grouped into modules under `src/modules/`. Each module registers its own commands and buttons.
+Home, Account, Invitations, Weather (`/cuaca`), and News (`/berita`) are implemented; the other menu entries are placeholders.
+
 
 ## Commands
 
@@ -14,6 +16,8 @@ Features are grouped into modules under `src/modules/`. Each module registers it
 | `/me` | Show the linked account |
 | `/invite` | Create an invitation (Owner only) |
 | - `/invites` lists the latest invitations. Each one has a detail screen (status, role, creator, and Asia/Jakarta times) and a revoke button while it is pending. |
+| `/cuaca` | Current weather and today's forecast for your saved location (share it with the location button first) |
+| `/berita` | Latest headlines by category |
 | `/batal`, `/cancel` | Stop the current step-by-step flow |
 
 Most actions are also available as buttons from the home menu.
@@ -77,8 +81,7 @@ src/
   bot/              bot creation, legacy commands, errors, formatting
   core/             shared code: wizard engine, UI helpers, linked-account checks
   modules/          one folder per feature module (home, invitations, ...)
-tests/              Vitest tests (bot, client, config, signature, wizard)
-scripts/            smoke test and signature helper
+tests/              Vitest tests (bot, client, config, signature, wizard, weather format, guard)scripts/            smoke test and signature helper
 ```
 
 ## Security notes
